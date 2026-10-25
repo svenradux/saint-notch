@@ -1,0 +1,333 @@
+<Window x:Class="SaintNotch.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Saint Notch"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="{x:Null}"
+        Topmost="True"
+        ShowInTaskbar="True"
+        Width="700"
+        Height="360"
+        WindowStartupLocation="Manual"
+        KeyDown="Window_KeyDown"
+        Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <!-- Standard Fleur-de-lis Path Data -->
+        <PathGeometry x:Key="FleurDeLisGeometry"
+                      Figures="M 50,5 C 47,18 43,28 35,36 C 30,30 20,24 10,28 C 0,32 0,44 8,50 C 18,57 28,52 35,46 C 34,51 32,56 26,60 C 23,59 18,59 15,61 C 12,63 12,67 15,68 C 22,70 30,68 36,63 C 35,70 32,77 28,82 C 26,84 28,87 31,87 C 35,87 40,82 43,76 C 45,72 47,65 48,60 L 52,60 C 53,65 55,72 57,76 C 60,82 65,87 69,87 C 72,87 74,84 72,82 C 68,77 65,70 64,63 C 70,68 78,70 85,68 C 88,67 88,63 85,61 C 82,59 77,59 74,60 C 68,56 66,51 65,46 C 72,52 82,57 92,50 C 100,44 100,32 90,28 C 80,24 70,30 65,36 C 57,28 53,18 50,5 Z" />
+
+        <!-- Silver gradient brush -->
+        <LinearGradientBrush x:Key="SilverGradient" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#FFFFFF" Offset="0.0" />
+            <GradientStop Color="#D0D0D8" Offset="0.45" />
+            <GradientStop Color="#9E9EA8" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="NotchGlassBackground" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#F00F0F14" Offset="0.0" />
+            <GradientStop Color="#F808080B" Offset="1.0" />
+        </LinearGradientBrush>
+
+        <!-- Transport button style -->
+        <Style x:Key="TransportBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Foreground" Value="#D0D0D8" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="btnBorder" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#22FFFFFF" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="btnBorder" Property="Background" Value="#44FFFFFF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- State switch pill button style -->
+        <Style x:Key="StateSwitchBtnStyle" TargetType="Button">
+            <Setter Property="Background" Value="#1AFFFFFF" />
+            <Setter Property="Foreground" Value="#A0A0AA" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Padding" Value="8,3" />
+            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10" BorderBrush="#33FFFFFF" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#33FFFFFF" />
+                                <Setter Property="Foreground" Value="#FFFFFF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- Context Menu for reliable Exit and State selection -->
+    <Window.ContextMenu>
+        <ContextMenu Background="#18181F" Foreground="#E0E0E8" BorderBrush="#2A2A36">
+            <MenuItem Header="⚜ Saint Notch (Concept C)" FontWeight="Bold" IsEnabled="False" />
+            <Separator Background="#2A2A36" />
+            <MenuItem Header="State: S0 (Continuous Pill)" Click="MenuS0_Click" />
+            <MenuItem Header="State: S1 (Compact Media)" Click="MenuS1_Click" />
+            <MenuItem Header="State: S2 (Expanded Card)" Click="MenuS2_Click" />
+            <Separator Background="#2A2A36" />
+            <MenuItem Header="Exit Saint Notch" Click="MenuExit_Click" />
+        </ContextMenu>
+    </Window.ContextMenu>
+
+    <Grid>
+        <!-- The Notch Container Border -->
+        <Border x:Name="NotchContainer"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Width="140"
+                Height="38"
+                CornerRadius="19"
+                Background="{StaticResource NotchGlassBackground}"
+                BorderBrush="#2A2A38"
+                BorderThickness="1"
+                ClipToBounds="True"
+                Cursor="Hand"
+                MouseLeftButtonUp="NotchContainer_MouseLeftButtonUp"
+                MouseRightButtonUp="NotchContainer_MouseRightButtonUp">
+            
+            <Border.Effect>
+                <DropShadowEffect x:Name="BreathingShadow"
+                                  Color="#FFFFFF"
+                                  BlurRadius="16"
+                                  ShadowDepth="0"
+                                  Opacity="0.32" />
+            </Border.Effect>
+
+            <Grid>
+                <!-- S0: Continuous Idle Pill Content -->
+                <Grid x:Name="S0Content" Visibility="Visible" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <!-- S0 Silver Fleur-de-lis -->
+                        <Path Data="{StaticResource FleurDeLisGeometry}"
+                              Fill="{StaticResource SilverGradient}"
+                              Width="18"
+                              Height="18"
+                              Stretch="Uniform"
+                              VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+
+                <!-- S1: Compact Media Pill Content -->
+                <Grid x:Name="S1Content" Visibility="Collapsed" Margin="8,4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Mini Album Artwork -->
+                    <Border Grid.Column="0" Width="44" Height="44" CornerRadius="8" Background="#16161E" BorderBrush="#303040" BorderThickness="1" VerticalAlignment="Center">
+                        <Grid>
+                            <!-- Mini Vinyl Record motif -->
+                            <Ellipse Width="38" Height="38" Stroke="#2A2A3A" StrokeThickness="1" />
+                            <Ellipse Width="26" Height="26" Stroke="#222232" StrokeThickness="1" />
+                            <Ellipse Width="14" Height="14" Fill="#333348" />
+                            <Path Data="{StaticResource FleurDeLisGeometry}"
+                                  Fill="{StaticResource SilverGradient}"
+                                  Width="10"
+                                  Height="10"
+                                  Stretch="Uniform" />
+                        </Grid>
+                    </Border>
+
+                    <!-- Track Details -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,8,0">
+                        <TextBlock Text="Saint Signature" Foreground="#FFFFFF" FontWeight="SemiBold" FontSize="12" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Text="Sven Radux — Acoustic Nocturne" Foreground="#8E8E9E" FontSize="10" Margin="0,2,0,0" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+
+                    <!-- Compact Controls -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource TransportBtnStyle}" Padding="6,4" Click="PrevTrack_Click" ToolTip="Previous">
+                            <TextBlock Text="⏮" FontSize="12" />
+                        </Button>
+                        <Button Style="{StaticResource TransportBtnStyle}" Padding="8,4" Click="PlayPause_Click" ToolTip="Play / Pause">
+                            <TextBlock x:Name="S1PlayPauseText" Text="⏸" FontSize="14" Foreground="#FFFFFF" />
+                        </Button>
+                        <Button Style="{StaticResource TransportBtnStyle}" Padding="6,4" Click="NextTrack_Click" ToolTip="Next">
+                            <TextBlock Text="⏭" FontSize="12" />
+                        </Button>
+                        <Button Style="{StaticResource TransportBtnStyle}" Padding="6,4" Margin="4,0,0,0" Click="ExpandToS2_Click" ToolTip="Expand to S2 (Full Player)">
+                            <TextBlock Text="⤢" FontSize="12" Foreground="#A0A0B0" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- S2: Expanded Downward Panel Content -->
+                <Grid x:Name="S2Content" Visibility="Collapsed" Margin="18,14,18,14">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Subtle Background Fleur-de-lis Watermark -->
+                    <Path Grid.RowSpan="2"
+                          Data="{StaticResource FleurDeLisGeometry}"
+                          Fill="#FFFFFF"
+                          Opacity="0.035"
+                          Width="220"
+                          Height="220"
+                          Stretch="Uniform"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Bottom"
+                          Margin="0,0,-20,-20"
+                          IsHitTestVisible="False" />
+
+                    <!-- S2 Header Bar -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Path Data="{StaticResource FleurDeLisGeometry}"
+                                  Fill="{StaticResource SilverGradient}"
+                                  Width="12"
+                                  Height="12"
+                                  Stretch="Uniform"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,6,0" />
+                            <TextBlock Text="SAINT NOTCH" Foreground="#FFFFFF" FontWeight="Bold" FontSize="11" VerticalAlignment="Center" />
+                            <Border Background="#1C1C26" CornerRadius="4" Padding="6,2" Margin="8,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="CONCEPT C • SAINT SIGNATURE" Foreground="#888899" FontSize="9" FontWeight="Medium" />
+                            </Border>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button Style="{StaticResource TransportBtnStyle}" Padding="6,2" Margin="0,0,4,0" Click="CollapseToS1_Click" ToolTip="Collapse to Compact">
+                                <TextBlock Text="⤡" FontSize="12" />
+                            </Button>
+                            <Button Style="{StaticResource TransportBtnStyle}" Padding="6,2" Click="MenuExit_Click" ToolTip="Exit">
+                                <TextBlock Text="✕" FontSize="11" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- S2 Body: 2 Columns (Artwork Left, Metadata/Controls Right) -->
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left: High-resolution Artwork Placeholder -->
+                        <Border Grid.Column="0" Width="190" Height="190" CornerRadius="12" Background="#12121A" BorderBrush="#262634" BorderThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Grid>
+                                <!-- Outer Vinyl Rings -->
+                                <Ellipse Width="170" Height="170" Stroke="#1D1D28" StrokeThickness="1" />
+                                <Ellipse Width="145" Height="145" Stroke="#222230" StrokeThickness="1" />
+                                <Ellipse Width="120" Height="120" Stroke="#1D1D28" StrokeThickness="1" />
+                                <Ellipse Width="95" Height="95" Stroke="#252536" StrokeThickness="1" />
+                                <!-- Center Emblem -->
+                                <Ellipse Width="70" Height="70" Fill="#181824" Stroke="#303044" StrokeThickness="1" />
+                                <Path Data="{StaticResource FleurDeLisGeometry}"
+                                      Fill="{StaticResource SilverGradient}"
+                                      Width="34"
+                                      Height="34"
+                                      Stretch="Uniform"
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Center" />
+                            </Grid>
+                        </Border>
+
+                        <!-- Right: Metadata & Detailed Controls -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
+                            <!-- Track Metadata -->
+                            <TextBlock Text="NOW PLAYING" Foreground="#7E7E90" FontSize="9" FontWeight="Bold" />
+                            <TextBlock Text="Saint Signature (Nocturne in C)" Foreground="#FFFFFF" FontSize="16" FontWeight="SemiBold" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+                            <TextBlock Text="Sven Radux • Architecture &amp; Sound 2026" Foreground="#9595A6" FontSize="11" Margin="0,2,0,10" TextTrimming="CharacterEllipsis" />
+
+                            <!-- Scrub Bar / Progress -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="01:42" Foreground="#777788" FontSize="10" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <ProgressBar Grid.Column="1" Value="45" Maximum="100" Height="4" Background="#20202C" Foreground="{StaticResource SilverGradient}" BorderThickness="0" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="-02:03" Foreground="#777788" FontSize="10" VerticalAlignment="Center" Margin="8,0,0,0" />
+                            </Grid>
+
+                            <!-- Full Transport Row -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,4,0,10">
+                                <Button Style="{StaticResource TransportBtnStyle}" Padding="8,6" Margin="4,0" ToolTip="Shuffle">
+                                    <TextBlock Text="🔀" FontSize="13" Foreground="#7E7E90" />
+                                </Button>
+                                <Button Style="{StaticResource TransportBtnStyle}" Padding="10,6" Margin="4,0" Click="PrevTrack_Click" ToolTip="Previous Track">
+                                    <TextBlock Text="⏮" FontSize="14" />
+                                </Button>
+                                <!-- Play/Pause Hero Button -->
+                                <Border Width="38" Height="38" CornerRadius="19" Background="#FFFFFF" Cursor="Hand" MouseLeftButtonUp="HeroPlayPause_MouseLeftButtonUp" Margin="8,0">
+                                    <TextBlock x:Name="S2PlayPauseText" Text="⏸" FontSize="16" Foreground="#0A0A0C" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <Button Style="{StaticResource TransportBtnStyle}" Padding="10,6" Margin="4,0" Click="NextTrack_Click" ToolTip="Next Track">
+                                    <TextBlock Text="⏭" FontSize="14" />
+                                </Button>
+                                <Button Style="{StaticResource TransportBtnStyle}" Padding="8,6" Margin="4,0" ToolTip="Repeat">
+                                    <TextBlock Text="🔁" FontSize="13" Foreground="#7E7E90" />
+                                </Button>
+                            </StackPanel>
+
+                            <!-- Volume Row & Output Info -->
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="🔊" FontSize="12" Foreground="#888898" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <ProgressBar Grid.Column="1" Value="74" Maximum="100" Height="4" Background="#20202C" Foreground="#9E9EA8" BorderThickness="0" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="Home OS 2 • Studio Audio" Foreground="#6C6C7E" FontSize="9" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Demo State Switcher Pill (Floating below Notch for easy state verification) -->
+        <Border x:Name="DemoToolbar"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,6"
+                Background="#D0101016"
+                BorderBrush="#2A2A38"
+                BorderThickness="1"
+                CornerRadius="14"
+                Padding="6,4">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="DEMO [0,1,2]:" Foreground="#6C6C7E" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" Margin="4,0,6,0" />
+                <Button Style="{StaticResource StateSwitchBtnStyle}" Content="S0: Idle (140x38)" Click="SwitchToS0_Click" />
+                <Button Style="{StaticResource StateSwitchBtnStyle}" Content="S1: Media (380x56)" Click="SwitchToS1_Click" />
+                <Button Style="{StaticResource StateSwitchBtnStyle}" Content="S2: Expanded (620x290)" Click="SwitchToS2_Click" />
+                <Button Style="{StaticResource StateSwitchBtnStyle}" Content="Exit" Click="MenuExit_Click" Margin="6,0,2,0" Foreground="#E06060" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AssemblyTitle>Saint Notch</AssemblyTitle>
+    <AssemblyDescription>Saint Notch — Concept C (Saint Signature) Windows Desktop Companion</AssemblyDescription>
+    <AssemblyCompany>Saint Network</AssemblyCompany>
+    <AssemblyProduct>Saint Notch</AssemblyProduct>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+  </PropertyGroup>
+
+</Project>
