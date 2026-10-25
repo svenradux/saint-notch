@@ -1,8 +1,11 @@
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Imaging;
 
 namespace SaintNotch
 {
@@ -36,8 +39,72 @@ namespace SaintNotch
             Left = (SystemParameters.PrimaryScreenWidth - Width) / 2;
             Top = 0;
 
+            if (Enum.TryParse<NotchState>(App.InitialState, true, out var parsed))
+            {
+                _currentState = parsed;
+            }
+
             InitBreathingAnimation();
             ApplyState(_currentState, animate: false);
+
+            if (!string.IsNullOrEmpty(App.CaptureDir))
+            {
+                try
+                {
+                    CaptureAllStates(App.CaptureDir);
+                }
+                catch (Exception ex)
+                {
+                    File.WriteAllText(Path.Combine(App.CaptureDir, "capture-error.log"), ex.ToString());
+                }
+                Application.Current.Shutdown();
+            }
+        }
+
+        public void CaptureAllStates(string outDir)
+        {
+            Directory.CreateDirectory(outDir);
+
+            // Hide demo toolbar for clean screenshot
+            DemoToolbar.Visibility = Visibility.Collapsed;
+
+            // S0
+            ApplyState(NotchState.S0, animate: false);
+            UpdateLayout();
+            SaveVisual(NotchContainer, Path.Combine(outDir, "screenshot-s0.png"), 140, 38);
+
+            // S1
+            ApplyState(NotchState.S1, animate: false);
+            UpdateLayout();
+            SaveVisual(NotchContainer, Path.Combine(outDir, "screenshot-s1.png"), 380, 56);
+
+            // S2
+            ApplyState(NotchState.S2, animate: false);
+            UpdateLayout();
+            SaveVisual(NotchContainer, Path.Combine(outDir, "screenshot-s2.png"), 620, 290);
+        }
+
+        private void SaveVisual(FrameworkElement element, string path, double w, double h)
+        {
+            int pad = 24;
+            int width = (int)Math.Ceiling(w) + pad * 2;
+            int height = (int)Math.Ceiling(h) + pad * 2;
+
+            var rtb = new RenderTargetBitmap(width, height, 96, 96, PixelFormats.Pbgra32);
+            var dv = new DrawingVisual();
+            using (var dc = dv.RenderOpen())
+            {
+                // Dark wallpaper backdrop to demonstrate glass transparency & soft silver glow
+                dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(14, 14, 18)), null, new Rect(0, 0, width, height));
+                var brush = new VisualBrush(element);
+                dc.DrawRectangle(brush, null, new Rect(pad, pad, w, h));
+            }
+            rtb.Render(dv);
+
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(rtb));
+            using var fs = File.Create(path);
+            encoder.Save(fs);
         }
 
         private bool IsReducedMotionEnabled()
@@ -233,12 +300,10 @@ namespace SaintNotch
 
         private void PrevTrack_Click(object sender, RoutedEventArgs e)
         {
-            // Visual feedback indicator
         }
 
         private void NextTrack_Click(object sender, RoutedEventArgs e)
         {
-            // Visual feedback indicator
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
